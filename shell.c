@@ -27,16 +27,13 @@ extern char **get_line(void);
 
 /**
  * Handle death of a child process
- * At the moment it doesn't really do anything,  ideally it will
- * clean up the terminal after the output of the child process is printed.
+ * At the moment it doesn't really 
+ * do anything, ideally it was going to 
+ * clean up the terminal after the 
+ * output of the child process is printed.
  */
 
 void sigchld_handler(int sig) {
-  pid_t p;
-  int status;
-  while ((p = waitpid(-1, &status, WNOHANG)) != -1) {
-
-  }
 }
 
 /**
@@ -101,7 +98,7 @@ int main(int argc, char *argv[]) {
   memset(&sa,0,sizeof(sa));
   sa.sa_handler = sigchld_handler;
   sigaction(SIGCHLD, &sa, NULL);
-
+  
   int i;
   char **args; 
   char path[255];
