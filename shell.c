@@ -39,14 +39,17 @@ void sigchld_handler(int sig) {
 /**
  * Forks a process 
  */
-void execute(char** args, int background, char* infile, char* outfile, char* errfile) {
+void execute(char** args, int background, char* infile, char* outfile, char* errfile, int pipe) {
   pid_t pid;
   int status;
+  int fd[2]; //file descriptors for pipes
+  pipe(fd);
   if ((pid = fork()) < 0) {
     printf("Failed to fork child process");
     exit(1);
   }
   else if (pid == 0) {
+    close(fd[1]);
     if (infile != NULL) {
       //redirect stdin
       int in;
@@ -94,6 +97,8 @@ void execute(char** args, int background, char* infile, char* outfile, char* err
  * based on the format if the input.
  */
 int main(int argc, char *argv[]) {
+  //this sets the sigchld handler, which I currently do not use
+  //Ill leave this in case I start using it again.
   struct sigaction sa;
   memset(&sa,0,sizeof(sa));
   sa.sa_handler = sigchld_handler;
@@ -102,15 +107,17 @@ int main(int argc, char *argv[]) {
   int i;
   char **args; 
   char path[255];
-
   while(1) {
+
+    //make a pretty prompt
     getcwd(path,255);
     printf("%s%s%s%s ->%s ",KBLD,KCYN,path,KRED,KNRM);
     args = get_line();
-    if(!args || args[0] == NULL) continue;
+    if(!args || args[0] == NULL) continue; //empty command skip to next command
 
     int error = FALSE;
     int background = FALSE;
+    int pipe = FALSE;
     char* infile = NULL;
     char* outfile = NULL;
     char* errfile = NULL;
@@ -147,21 +154,27 @@ int main(int argc, char *argv[]) {
 	  errfile = args[i];
 	}
       }
+      else if (strncmp(args[i], "|", 1) ==0) {
+	//everything from 0 to i-1 is command one
+	//from i+1 to the end is the  command two
+	args[i] = NULL;
+	pipe = TRUE;
+      }
     }
-    
+    //check if it should be executed in the background, this is handled poorly
     if (i >= 2 && strncmp(args[i-1], "&", 1) == 0) {
       background = TRUE;
       args[i-1] = NULL;
     }
 
-    //If the command is exit, exit the shell;
+    //If the command is exit, exit the shell and display a pretty message
     if (strncmp(args[0], "exit", 4) == 0) {
       printf("%sShell Exiting%s\n",KGRN,KNRM);
       exit(EXIT_SUCCESS);
     }
     //else execute the command as long as there was not a parse error
     else if (error == FALSE) {
-      execute(args, background, infile, outfile, errfile);
+      execute(args, background, infile, outfile, errfile, pipe);
     }
   }
   return 0;

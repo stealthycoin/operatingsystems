@@ -1,0 +1,6 @@
+Build instructions:
+make ; ./shell
+
+Extra features:
+- Colored terminal text for the prompt including the cwd.
+- Sorta half implemented pipes. You can pipe two things together, more than that requires more time than I have to spend.
