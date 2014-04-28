@@ -43,14 +43,19 @@ PUBLIC int do_noquantum(message *m_ptr)
   }
 
   rmp = &schedproc[proc_nr_n];
-  if (rmp->priority < MIN_USER_Q) {
+  if (rmp->priority < MIN_USER_Q - 1) {
     if (rmp->priority >= MAX_USER_Q && rmp->n_tix > 1) {
       rmp->n_tix -= 1;
       N_tix -= 1;
+      printf("Took a ticket; remaining: %d\n", rmp->n_tix);
     }
     rmp->priority += 1; /* lower priority */
   }
 	
+  if ((rv = schedule_process(rmp)) != OK) {
+    return rv;
+  }
+  
   if (rmp->priority >= MAX_USER_Q) {
     if ((rv = lottery_winner()) != OK) {
       printf("Sched: lottery failed, error of type %d.\n", rv);
@@ -58,10 +63,6 @@ PUBLIC int do_noquantum(message *m_ptr)
     }
   } 
 
-  if ((rv = schedule_process(rmp)) != OK) {
-    return rv;
-  }
-  
   return OK;
 }
 
@@ -139,7 +140,7 @@ PUBLIC int do_start_scheduling(message *m_ptr)
       return rv;
 
     rmp->priority = schedproc[parent_nr_n].priority;
-    if (rmp->priority == MAX_USER_Q) rmp->priority = MIN_USER_Q;
+    if (rmp->priority == MAX_USER_Q) rmp->priority = MIN_USER_Q - 1;
     rmp->time_slice = schedproc[parent_nr_n].time_slice;
     rmp->n_tix = 20;
     N_tix += 20;
@@ -160,6 +161,11 @@ PUBLIC int do_start_scheduling(message *m_ptr)
   rmp->flags = IN_USE;
 
   /* Schedule the process, giving it some quantum */
+  if ((rv = schedule_process(rmp)) != OK) {
+    printf("Sched: Error while scheduling process, kernel replied %d\n",
+     rv);
+    return rv;
+  }
   if (rmp->priority >= MAX_USER_Q) {
     if ((rv = lottery_winner()) != OK) {
       printf("Sched: lottery failed, error of type %d.\n", rv);
@@ -167,11 +173,6 @@ PUBLIC int do_start_scheduling(message *m_ptr)
     }
   }
 
-  if ((rv = schedule_process(rmp)) != OK) {
-    printf("Sched: Error while scheduling process, kernel replied %d\n",
-     rv);
-    return rv;
-  }
 
   /* Mark ourselves as the new scheduler.
    * By default, processes are scheduled by the parents scheduler. In case
@@ -215,7 +216,7 @@ PUBLIC int do_nice(message *m_ptr)
   if (rmp->priority < MAX_USER_Q)
     rmp->max_priority = rmp->priority = 0;
   else {
-    rmp->priority = MIN_USER_Q;
+    rmp->priority = MIN_USER_Q - 1;
     set_tix(rmp, nice);
   }
 
@@ -314,6 +315,7 @@ int lottery_winner()
       winning_ticket -= rmp->n_tix;
       if (winning_ticket <= 0) {
         rmp->priority = MAX_USER_Q;
+        printf("endpoint: %d\n", rmp->endpoint);
         break;
       }
     }
