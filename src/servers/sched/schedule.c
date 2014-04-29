@@ -43,12 +43,13 @@ PUBLIC int do_noquantum(message *m_ptr)
   }
 
   rmp = &schedproc[proc_nr_n];
-  if (rmp->priority < MIN_USER_Q - 1) {
-    if (rmp->priority >= MAX_USER_Q && rmp->n_tix > 1) {
+  if (rmp->priority < MIN_USER_Q) {
+    /* Dynamic Scheduler -- Implement Later */
+    /* if (rmp->priority >= MAX_USER_Q && rmp->n_tix > 1) {
       rmp->n_tix -= 1;
       N_tix -= 1;
       printf("Took a ticket; remaining: %d\n", rmp->n_tix);
-    }
+    } */
     rmp->priority += 1; /* lower priority */
   }
 	
@@ -61,7 +62,7 @@ PUBLIC int do_noquantum(message *m_ptr)
       printf("Sched: lottery failed, error of type %d.\n", rv);
       return rv;
     }
-  } 
+  }
 
   return OK;
 }
@@ -166,12 +167,12 @@ PUBLIC int do_start_scheduling(message *m_ptr)
      rv);
     return rv;
   }
-  if (rmp->priority >= MAX_USER_Q) {
+  /* if (rmp->priority >= MAX_USER_Q) {
     if ((rv = lottery_winner()) != OK) {
       printf("Sched: lottery failed, error of type %d.\n", rv);
       return rv;
     }
-  }
+  }*/
 
 
   /* Mark ourselves as the new scheduler.
@@ -279,10 +280,10 @@ PRIVATE void balance_queues(struct timer *tp)
   for (proc_nr=0, rmp=schedproc; proc_nr < NR_PROCS; proc_nr++, rmp++) {
     if (rmp->priority < MAX_USER_Q) {
       if (rmp->flags & IN_USE) {
-	if (rmp->priority > rmp->max_priority) {
-	  rmp->priority -= 1; /* increase priority */
-	  schedule_process(rmp);
-	}
+        if (rmp->priority > rmp->max_priority) {
+          rmp->priority -= 1; /* increase priority */
+          schedule_process(rmp);
+        }
       }
     }
   }
@@ -315,7 +316,7 @@ int lottery_winner()
       winning_ticket -= rmp->n_tix;
       if (winning_ticket <= 0) {
         rmp->priority = MAX_USER_Q;
-        printf("endpoint: %d\n", rmp->endpoint);
+        schedule_process(rmp);
         break;
       }
     }
