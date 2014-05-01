@@ -50,7 +50,10 @@ PUBLIC int do_noquantum(message *m_ptr)
       N_tix -= 1;
       printf("Took a ticket; remaining: %d\n", rmp->n_tix);
     } */
-    rmp->priority += 1; /* lower priority */
+    if (rmp->priority >= MAX_USER_Q)
+      rmp->priority = MIN_USER_Q;
+    else if (rmp->priority < MAX_USER_Q - 1)
+      rmp->priority += 1; /* lower priority */
   }
 	
   if ((rv = schedule_process(rmp)) != OK) {
@@ -140,8 +143,9 @@ PUBLIC int do_start_scheduling(message *m_ptr)
 			      &parent_nr_n)) != OK)
       return rv;
 
-    rmp->priority = schedproc[parent_nr_n].priority;
-    if (rmp->priority == MAX_USER_Q) rmp->priority = MIN_USER_Q - 1;
+    /* rmp->priority = schedproc[parent_nr_n].priority;
+    if (rmp->priority >= MAX_USER_Q) */ 
+    rmp->priority = MIN_USER_Q;
     rmp->time_slice = schedproc[parent_nr_n].time_slice;
     rmp->n_tix = 20;
     N_tix += 20;
@@ -167,13 +171,6 @@ PUBLIC int do_start_scheduling(message *m_ptr)
      rv);
     return rv;
   }
-  /* if (rmp->priority >= MAX_USER_Q) {
-    if ((rv = lottery_winner()) != OK) {
-      printf("Sched: lottery failed, error of type %d.\n", rv);
-      return rv;
-    }
-  }*/
-
 
   /* Mark ourselves as the new scheduler.
    * By default, processes are scheduled by the parents scheduler. In case
@@ -215,9 +212,9 @@ PUBLIC int do_nice(message *m_ptr)
 
   /* Update the proc entry and reschedule the process */
   if (rmp->priority < MAX_USER_Q)
-    rmp->max_priority = rmp->priority = 0;
+    rmp->max_priority = rmp->priority = 7;
   else {
-    rmp->priority = MIN_USER_Q - 1;
+    rmp->priority = MIN_USER_Q;
     set_tix(rmp, nice);
   }
 
@@ -291,6 +288,16 @@ PRIVATE void balance_queues(struct timer *tp)
   set_timer(&sched_timer, balance_timeout, balance_queues, 0);
 }
 
+/*===========================================================================*
+ *		                  		set_tix                             				     *
+ *===========================================================================*/
+
+/* This function adjusts the ticket field of the schedproc rmp by 
+ * the requested amount, if possible. If adding the requested amount
+ * of tickets would result in more than the max allowable, then this
+ * procedures sets the ticket field to the max. If removing the requested
+ * amount would result in less than 1 ticket, the ticket field is set to 1.
+ */
 void set_tix(struct schedproc *rmp, int new_q)
 {
   if (rmp->n_tix + new_q <= MAX_TICKETS && rmp->n_tix + new_q > 0) {
@@ -305,6 +312,13 @@ void set_tix(struct schedproc *rmp, int new_q)
   }
 }
 
+/*===========================================================================*
+ *		                		lotterty_winner	                        			     *
+ *===========================================================================*/
+
+ /* Determines the lottery winner. 
+  *
+  */
 int lottery_winner()
 {
   int proc, winning_ticket;
@@ -312,7 +326,7 @@ int lottery_winner()
 
   winning_ticket = N_tix ? rand() % N_tix : 0;
   for (proc=0, rmp=schedproc; proc < NR_PROCS; proc++, rmp++) {
-    if ((rmp->flags & IN_USE) && rmp->priority > MAX_USER_Q) {
+    if ((rmp->flags & IN_USE) && rmp->priority == MIN_USER_Q) {
       winning_ticket -= rmp->n_tix;
       if (winning_ticket <= 0) {
         rmp->priority = MAX_USER_Q;
