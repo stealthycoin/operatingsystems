@@ -282,7 +282,7 @@ PRIVATE void balance_queues(struct timer *tp)
           schedule_process(rmp);
         }
       }
-    } else { /* user process */ }
+    } else { /* user process */
       if (rmp->flags & IN_USE) {
         if (rmp->priority == MAX_USER_Q) {
           rmp->priority = MIN_USER_Q;
@@ -291,7 +291,6 @@ PRIVATE void balance_queues(struct timer *tp)
       }
     }
   }
-
   set_timer(&sched_timer, balance_timeout, balance_queues, 0);
 }
 
