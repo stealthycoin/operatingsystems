@@ -8,25 +8,29 @@
 
 int main(int argc, char **argv)
 {
-
   int k = 400000000;
+  char *fname;
+  FILE *f;
+  FILE *f2; 
+  char buf[1025];
+  int sum = 0; 
+  int i = 0; 
+  size_t n = 0; 
+
   if(argc < 2){
     printf("Usage: IO_bound <filename>\n");
     exit(1);
   }
   
-  char *fname = argv[1];
-  FILE *f = fopen(fname, "rw");
-  FILE *f2 = fopen("IO_bound.out", "w");
+  fname = argv[1];
+  f = fopen(fname, "rw");
+  f2 = fopen("IO_bound.out", "w");
   if(!f || !f2){
     printf("Failed to open file %s\n", argv[1]);
     exit(1);
   }
-  char buf[1025];
   
-  int sum = 0; 
-  int i = 0; 
-  size_t n = fread(buf, sizeof(char), 1024, f); 
+  n = fread(buf, sizeof(char), 1024, f); 
   while(n > 0){
     int w = fwrite(buf, sizeof(char), n, f2);
     if(!w){ 

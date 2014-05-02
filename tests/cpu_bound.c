@@ -9,15 +9,18 @@
 int main(int argc, char **argv)
 {
 
-  int k = 400000000;
+  int k = 4000000000;
+  int s;
+  int i;
+  int j;
   if(argc < 2){
     printf("Usage: cpu_bound <seconds>\n");
     exit(1);
   }
   
-  int s = atoi(argv[1]);
-  int i = 0;
-  int j = 10;
+  s = atoi(argv[1]);
+  i = 0;
+  j = 10;
   for(i = 0; i < k * s; i++){
     j = j * 3; 
   }
