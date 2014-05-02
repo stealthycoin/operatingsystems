@@ -1,6 +1,10 @@
-Build instructions:
-make ; ./shell
+Untar, enter the directory, and then run "install.sh". This script will copy the relevant files to their proper locations under "/usr/src" and then will run "make clean install" in the "/usr/src/tools" directory. After this finishes restart minix and select option 2: the custom version of minix. Once you have logged back in return to the uncompressed directory (where "install.sh" was located) and enter "tests". First run the script "make.sh" to compile the CPU bound and IO bound executables and then proceed to execute "test_N.sh" for N=1,2,3,4,5. See the table below for what each of these scripts demonstrates:
 
-Extra features:
-- Colored terminal text for the prompt including the cwd.
-- Sorta half implemented pipes. You can pipe two things together, more than that requires more time than I have to spend.
+Script       Property of Scheduler 
+"test_1.sh"  Show that running two equal CPU bound tasks with equal tickets lets them run at about the same speed
+"test_2.sh"  Show that running two CPU tasks where 1 has twice the tickets, the task with more tickets finishes in 1/2 the time 
+"test_3.sh"  Show that running three CPU tasks with 25, 50, and 100 tickets runs the tasks in the right ratio 
+"test_4.sh"  Show that running several CPU tasks with 100 tickets doesn't completely starve another task with just 1 ticket 
+"test_5.sh"  Show that your dynamic scheduler improves performance when you mix CPU and IO bound tasks compared to keeping a fixed number of tickets for each process
+
+If you wish to install the dynamic version of the scheduler then before running "install.sh" edit the file "servers/sched/sched.h" and change the macro "DYNAMIC" to the value 1 (setting this to zero yields a static lottery scheduler). We show that ``our dynamic scheduler actually does dynamically adjust tickets of processes'' with a print statement in "do_noquantum". As long as the dynamic lotter scheduler is in place and there are CPU bound processes, you will see messages indicating when a ticket have been taken and which endpoint it has been taken from.

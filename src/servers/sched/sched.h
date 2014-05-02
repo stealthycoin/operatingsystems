@@ -5,6 +5,8 @@
 #define _MINIX             1	/* tell headers to include MINIX stuff */
 #define _SYSTEM            1	/* tell headers that this is the kernel */
 
+#define DYNAMIC            0    /* set this to 1 if you want the lottery scheduler to be dynamic */
+
 /* The following are so basic, all the *.c files get them automatically. */
 #include <minix/config.h>	/* MUST be first */
 #include <ansi.h>		/* MUST be second */

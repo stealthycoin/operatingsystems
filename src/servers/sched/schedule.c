@@ -44,12 +44,12 @@ PUBLIC int do_noquantum(message *m_ptr)
 
   rmp = &schedproc[proc_nr_n];
   if (rmp->priority < MIN_USER_Q) {
-    /* Dynamic Scheduler -- Implement Later */
-    /* if (rmp->priority >= MAX_USER_Q && rmp->n_tix > 1) {
+    /* Dynamic Scheduler */
+    if (DYNAMIC == 1 && rmp->priority >= MAX_USER_Q && rmp->n_tix > 1) {
       rmp->n_tix -= 1;
       N_tix -= 1;
       printf("Took a ticket; remaining: %d\n", rmp->n_tix);
-    } */
+    }
     if (rmp->priority >= MAX_USER_Q)
       rmp->priority = MIN_USER_Q;
     else if (rmp->priority < MAX_USER_Q - 1)
@@ -275,10 +275,17 @@ PRIVATE void balance_queues(struct timer *tp)
   int proc_nr;
   int rv;
   for (proc_nr=0, rmp=schedproc; proc_nr < NR_PROCS; proc_nr++, rmp++) {
-    if (rmp->priority < MAX_USER_Q) {
+    if (rmp->priority < MAX_USER_Q) { /* system process */
       if (rmp->flags & IN_USE) {
         if (rmp->priority > rmp->max_priority) {
           rmp->priority -= 1; /* increase priority */
+          schedule_process(rmp);
+        }
+      }
+    } else { /* user process */ }
+      if (rmp->flags & IN_USE) {
+        if (rmp->priority == MAX_USER_Q) {
+          rmp->priority = MIN_USER_Q;
           schedule_process(rmp);
         }
       }
