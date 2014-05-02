@@ -19,7 +19,7 @@ PRIVATE unsigned balance_timeout;
 
 unsigned N_tix;
 
-#define BALANCE_TIMEOUT	5 /* how often to balance queues in seconds */
+#define BALANCE_TIMEOUT	1 /* how often to balance queues in seconds */
 
 FORWARD _PROTOTYPE( int schedule_process, (struct schedproc * rmp)	);
 FORWARD _PROTOTYPE( void balance_queues, (struct timer *tp)		);

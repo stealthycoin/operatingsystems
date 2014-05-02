@@ -8,6 +8,8 @@ objects =
 all: $(objects)
 	$(CC) -o IO_bound IO_bound.c
 	$(CC) -o cpu_bound cpu_bound.c
+	dd if=/dev/urandom of=IO_bound.in count=50000
+
 
 clean: 
 	rm IO_bound
