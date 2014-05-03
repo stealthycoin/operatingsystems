@@ -218,7 +218,7 @@ PUBLIC int do_nice(message *m_ptr)
     set_tix(rmp, nice);
   }
 
-  printf("Process tickets: %d\n", rmp->n_tix);
+  /*  printf("Process tickets: %d\n", rmp->n_tix);*/
 
   if ((rv = schedule_process(rmp)) != OK) {
     /* Something went wrong when rescheduling the process, roll
@@ -282,14 +282,7 @@ PRIVATE void balance_queues(struct timer *tp)
           schedule_process(rmp);
         }
       }
-    } else { /* user process */
-      /*if (rmp->flags & IN_USE) {
-        if (rmp->priority == MAX_USER_Q) {
-          rmp->priority = MIN_USER_Q;
-          schedule_process(rmp);
-	  }
-       }*/
-    }
+    } else { /* user process (do nada) */ }
   }
   set_timer(&sched_timer, balance_timeout, balance_queues, 0);
 }

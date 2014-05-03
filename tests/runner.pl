@@ -125,23 +125,23 @@ sub test {
     print "==============================\n\n";
 }
 
-my @cmds = ("./cpu_bound 10", "./cpu_bound 10");
+my @cmds = ("./cpu_bound", "./cpu_bound");
 my @pris = (100, 100);
 test("Show that running two equal CPU bound tasks with equal tickets lets them run at about the same speed", \@cmds, \@pris);
 
-@cmds = ("./cpu_bound 10", "./cpu_bound 10");
+@cmds = ("./cpu_bound", "./cpu_bound");
 @pris = (50, 100);
 test("Show that running two CPU tasks where 1 has twice the tickets, the task with more tickets finishes in 1/2 the time", \@cmds, \@pris);
 
-@cmds = ("./cpu_bound 10", "./cpu_bound 10", "./cpu_bound 10");
+@cmds = ("./cpu_bound", "./cpu_bound", "./cpu_bound");
 @pris = (25, 50, 100);
 test("Show that running three CPU tasks with 25, 50, and 100 tickets runs the tasks in the right ratio", \@cmds, \@pris);
 
-@cmds = ("./cpu_bound 10", "./cpu_bound 10", "./cpu_bound 10", "./cpu_bound 10");
+@cmds = ("./cpu_bound", "./cpu_bound", "./cpu_bound", "./cpu_bound");
 @pris = (100, 100, 100, 1);
 test("Show that running several CPU tasks with 100 tickets doesn't completely starve another task with just 1 ticket", \@cmds, \@pris);
 
-@cmds = ("./cpu_bound 10", "./IO_bound IO_bound.in");
+@cmds = ("./cpu_bound", "./IO_bound IO_bound.in");
 @pris = (100, 100);
 test("Show that your dynamic scheduler improves performance when you mix CPU and IO 
 bound tasks compared to keeping a fixed number of tickets for each process", \@cmds, \@pris);
