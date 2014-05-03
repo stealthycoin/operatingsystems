@@ -115,11 +115,12 @@ sub test {
     }    
 	
     print "\nTests finished...\n";
-    print "\tCommand \t Tickets \t Avg Time \t StDev \t Ratio\n";
+    print "Command \t Tickets \t Avg Time \t StDev \t Ratio\n";
     $i = 0; 
     foreach (@cmds){
 	my $ratio = floor($times[$i] / $times[0] * 1000) / 1000;
-	print "\t$cmds[$i] \t $nices[$i] \t\t $times[$i] \t\t $stdevs[$i] \t $ratio\n";
+	printf "%10s %8d %17.3f %15.3f %7.3f\n", $cmds[$i], $nices[$i], $times[$i], $stdevs[$i], $ratio;
+#	print "\t$cmds[$i] \t $nices[$i] \t\t $times[$i] \t\t $stdevs[$i] \t $ratio\n";
 	$i = $i + 1; 
     }	
     print "==============================\n\n";

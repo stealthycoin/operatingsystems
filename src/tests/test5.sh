@@ -1,4 +1,4 @@
 #!/bin/sh
 
-time nice -n 30 ./cpu_heavy 10 &
-time nice -n 30 ./IO_bound IO_bound.in &
+time nice -n 80 ./cpu_bound &
+time nice -n 80 ./IO_bound.sh &

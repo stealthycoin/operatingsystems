@@ -1,0 +1,22 @@
+README
+Lottery Scheduler in MINIX
+By Brilliant Squid
+
+Instructions:
+Untar, enter the directory, become root, and then run "install.sh". 
+After this finishes restart minix and select option 2.
+
+Return to the uncompressed directory (where "install.sh" was located) and enter "tests". 
+
+Run "make" to compile the CPU bound and IO bound executables. 
+
+You can run "perl runner.pl" for an automated testing sweet that averages five runs for each of the tasks.
+
+If you would prefer to test manually, here are the properties of the test scripts:
+- test1.sh : run two processes of the same CPU heavy program with an equal number of tickets.
+- test2.sh : run two processes of the same CPU heavy program with a ratio of 1:2 tickets.
+- test3.sh : run three processes of the same CPU heavy program with a ratio of 1:2:4 tickets.
+- test4.sh : run four processes of the same CPU heavy program with a ratio of 1:100:100:100 tickets.
+- test5.sh : run one IO bound process and one CPU heavy process. 
+-----------> toggle DYNAMIC for comparison (requires reinstallation)
+-----------> to see tickets being adjusted by uncommenting print statment at do_noquantum in schedule.c 
