@@ -9,10 +9,10 @@
 int main(int argc, char **argv)
 {
 
-  int k = 4000000000;
-  int s;
-  int i;
-  int j;
+  long k = 100000;
+  long s;
+  long i;
+  long j;
   if(argc < 2){
     printf("Usage: cpu_bound <seconds>\n");
     exit(1);
@@ -22,7 +22,11 @@ int main(int argc, char **argv)
   i = 0;
   j = 10;
   for(i = 0; i < k * s; i++){
-    j = j * 3; 
+    int l = 0; 
+    for(l = 0; l < 10000; l++){
+      j = j * 3; 
+      j = 20; 
+    }
   }
   
   return 0;
