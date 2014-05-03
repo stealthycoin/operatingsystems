@@ -17,8 +17,6 @@
 PRIVATE timer_t sched_timer;
 PRIVATE unsigned balance_timeout;
 
-unsigned N_tix = 0;
-
 #define BALANCE_TIMEOUT	1 /* how often to balance queues in seconds */
 
 FORWARD _PROTOTYPE( int schedule_process, (struct schedproc * rmp)	);
@@ -47,7 +45,6 @@ PUBLIC int do_noquantum(message *m_ptr)
     /* Dynamic Scheduler */
     if (DYNAMIC == 1 && rmp->priority >= MAX_USER_Q && rmp->n_tix > 1) {
       rmp->n_tix -= 1;
-      N_tix -= 1;
       printf("Took a ticket; remaining: %d\n", rmp->n_tix);
     }
     if (rmp->priority >= MAX_USER_Q)
@@ -90,7 +87,6 @@ PUBLIC int do_stop_scheduling(message *m_ptr)
 
   rmp = &schedproc[proc_nr_n];
   rmp->flags = 0; /*&= ~IN_USE;*/
-  N_tix -= rmp->n_tix;
 
   return OK;
 }
@@ -143,12 +139,16 @@ PUBLIC int do_start_scheduling(message *m_ptr)
 			      &parent_nr_n)) != OK)
       return rv;
 
-    /* rmp->priority = schedproc[parent_nr_n].priority;
-    if (rmp->priority >= MAX_USER_Q) */ 
-    rmp->priority = MIN_USER_Q;
+    rmp->priority = schedproc[parent_nr_n].priority;
+    if (rmp->priority >= MAX_USER_Q) {
+      rmp->priority = MIN_USER_Q;
+      rmp->n_tix = 20;
+    }
+    else {
+      rmp->n_tix = 0;
+    }
     rmp->time_slice = schedproc[parent_nr_n].time_slice;
-    rmp->n_tix = 20;
-    N_tix += 20;
+
     break;
 		
   default: 
@@ -218,7 +218,7 @@ PUBLIC int do_nice(message *m_ptr)
     set_tix(rmp, nice);
   }
 
-  printf("Total tickets: %d\n Process tickets: %d\n", N_tix, rmp->n_tix);
+  printf("Process tickets: %d\n", rmp->n_tix);
 
   if ((rv = schedule_process(rmp)) != OK) {
     /* Something went wrong when rescheduling the process, roll
@@ -283,12 +283,12 @@ PRIVATE void balance_queues(struct timer *tp)
         }
       }
     } else { /* user process */
-      if (rmp->flags & IN_USE) {
+      /*if (rmp->flags & IN_USE) {
         if (rmp->priority == MAX_USER_Q) {
           rmp->priority = MIN_USER_Q;
           schedule_process(rmp);
-        }
-      }
+	  }
+       }*/
     }
   }
   set_timer(&sched_timer, balance_timeout, balance_queues, 0);
@@ -308,12 +308,9 @@ void set_tix(struct schedproc *rmp, int new_q)
 {
   if (rmp->n_tix + new_q <= MAX_TICKETS && rmp->n_tix + new_q > 0) {
     rmp->n_tix += new_q;
-    N_tix += new_q;
   } else if (rmp->n_tix + new_q > MAX_TICKETS) {
-    N_tix += MAX_TICKETS - rmp->n_tix;
     rmp->n_tix = MAX_TICKETS;
   } else {
-    N_tix -= rmp->n_tix - 1;
     rmp->n_tix = 1;
   }
 }
@@ -330,7 +327,14 @@ int lottery_winner()
   int proc, winning_ticket;
   struct schedproc *rmp;
 
-  winning_ticket = N_tix ? rand() % N_tix : 0;
+
+  int total = 0;
+  for (proc=0, rmp=schedproc; proc < NR_PROCS; proc++, rmp++) {
+    if ((rmp->flags & IN_USE) && rmp->priority == MIN_USER_Q) {
+      total += rmp->n_tix;
+    }
+  }
+  winning_ticket = total ? rand() % total : 0;
   for (proc=0, rmp=schedproc; proc < NR_PROCS; proc++, rmp++) {
     if ((rmp->flags & IN_USE) && rmp->priority == MIN_USER_Q) {
       winning_ticket -= rmp->n_tix;

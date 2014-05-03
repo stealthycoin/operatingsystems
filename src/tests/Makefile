@@ -8,6 +8,8 @@ objects =
 all: $(objects)
 	$(CC) -o IO_bound IO_bound.c -lm
 	$(CC) -o cpu_bound cpu_bound.c -lm
+	$(CC) -o cpu_heavy cpu_heavy.c -lm
+	$(CC) -o primes primes.c -lm	
 	dd if=/dev/urandom of=IO_bound.in count=50000
 
 
