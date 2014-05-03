@@ -17,14 +17,14 @@
 PRIVATE timer_t sched_timer;
 PRIVATE unsigned balance_timeout;
 
-unsigned N_tix;
+unsigned N_tix = 0;
 
 #define BALANCE_TIMEOUT	1 /* how often to balance queues in seconds */
 
 FORWARD _PROTOTYPE( int schedule_process, (struct schedproc * rmp)	);
 FORWARD _PROTOTYPE( void balance_queues, (struct timer *tp)		);
 
-#define DEFAULT_USER_TIME_SLICE 200
+#define DEFAULT_USER_TIME_SLICE 100
 #define MAX_TICKETS 100
 
 /*===========================================================================*
