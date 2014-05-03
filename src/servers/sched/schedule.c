@@ -45,7 +45,7 @@ PUBLIC int do_noquantum(message *m_ptr)
     /* Dynamic Scheduler */
     if (DYNAMIC == 1 && rmp->priority >= MAX_USER_Q && rmp->n_tix > 1) {
       rmp->n_tix -= 1;
-      printf("Took a ticket; remaining: %d\n", rmp->n_tix);
+      /* printf("Took a ticket; remaining: %d\n", rmp->n_tix); */
     }
     if (rmp->priority >= MAX_USER_Q)
       rmp->priority = MIN_USER_Q;
