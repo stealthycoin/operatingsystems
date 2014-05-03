@@ -142,6 +142,6 @@ test("Show that running three CPU tasks with 25, 50, and 100 tickets runs the ta
 test("Show that running several CPU tasks with 100 tickets doesn't completely starve another task with just 1 ticket", \@cmds, \@pris);
 
 @cmds = ("./cpu_bound 10", "./IO_bound IO_bound.in");
-@pris = (100, 100, 100, 1);
+@pris = (100, 100);
 test("Show that your dynamic scheduler improves performance when you mix CPU and IO 
 bound tasks compared to keeping a fixed number of tickets for each process", \@cmds, \@pris);
