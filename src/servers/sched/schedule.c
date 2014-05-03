@@ -1,3 +1,8 @@
+/* Team Brilliant Squid
+ * Andrew Edwards, Kaya Zekioglu, Morgan McDermott, John Carlyle
+ * Last update: May 2, 2014
+ */
+
 /* This file contains the scheduling policy for SCHED
  *
  * The entry points are:
@@ -17,7 +22,7 @@
 PRIVATE timer_t sched_timer;
 PRIVATE unsigned balance_timeout;
 
-#define BALANCE_TIMEOUT	1 /* how often to balance queues in seconds */
+#define BALANCE_TIMEOUT	5 /* how often to balance queues in seconds */
 
 FORWARD _PROTOTYPE( int schedule_process, (struct schedproc * rmp)	);
 FORWARD _PROTOTYPE( void balance_queues, (struct timer *tp)		);
@@ -42,21 +47,30 @@ PUBLIC int do_noquantum(message *m_ptr)
 
   rmp = &schedproc[proc_nr_n];
   if (rmp->priority < MIN_USER_Q) {
-    /* Dynamic Scheduler */
+    /* Dynamic Scheduler 
+     * If DYNAMIC is set to 1, take a ticket for running out of quantum */
     if (DYNAMIC == 1 && rmp->priority >= MAX_USER_Q && rmp->n_tix > 1) {
       rmp->n_tix -= 1;
       printf("Took a ticket; remaining: %d\n", rmp->n_tix);
     }
+    /* Check if we should move proces down to MIN_USER_QUEUE
+     */
     if (rmp->priority >= MAX_USER_Q)
       rmp->priority = MIN_USER_Q;
+    /*  Otherwise use default policy
+     */
     else if (rmp->priority < MAX_USER_Q - 1)
       rmp->priority += 1; /* lower priority */
   }
 	
+  /* Schedule the process
+   */
   if ((rv = schedule_process(rmp)) != OK) {
     return rv;
   }
   
+  /* If this was one of our lottery processes, hold a new lottery
+   */
   if (rmp->priority >= MAX_USER_Q) {
     if ((rv = lottery_winner()) != OK) {
       printf("Sched: lottery failed, error of type %d.\n", rv);
@@ -140,6 +154,8 @@ PUBLIC int do_start_scheduling(message *m_ptr)
       return rv;
 
     rmp->priority = schedproc[parent_nr_n].priority;
+    /* If necessary, ensure process in MIN_USER_Q and give 20 tickets
+     */
     if (rmp->priority >= MAX_USER_Q) {
       rmp->priority = MIN_USER_Q;
       rmp->n_tix = 20;
@@ -210,15 +226,14 @@ PUBLIC int do_nice(message *m_ptr)
   old_q     = rmp->priority;
   old_max_q = rmp->max_priority;
 
-  /* Update the proc entry and reschedule the process */
+  /* This first case should not happen, but if so, give it a decent priority */
   if (rmp->priority < MAX_USER_Q)
     rmp->max_priority = rmp->priority = 7;
   else {
+    /* Make sure priority is MIN_USER_Q and adjust tickets with set_tix() */
     rmp->priority = MIN_USER_Q;
     set_tix(rmp, nice);
   }
-
-  /*  printf("Process tickets: %d\n", rmp->n_tix);*/
 
   if ((rv = schedule_process(rmp)) != OK) {
     /* Something went wrong when rescheduling the process, roll
@@ -252,6 +267,7 @@ PRIVATE int schedule_process(struct schedproc * rmp)
 
 PUBLIC void init_scheduling(void)
 {
+  /* The only change to initialization is generating PRNG seed */
   u64_t random;
   balance_timeout = BALANCE_TIMEOUT * sys_hz();
   init_timer(&sched_timer);
@@ -275,14 +291,14 @@ PRIVATE void balance_queues(struct timer *tp)
   int proc_nr;
   int rv;
   for (proc_nr=0, rmp=schedproc; proc_nr < NR_PROCS; proc_nr++, rmp++) {
-    if (rmp->priority < MAX_USER_Q) { /* system process */
+    if (rmp->priority < MAX_USER_Q) { /* use default policy */
       if (rmp->flags & IN_USE) {
         if (rmp->priority > rmp->max_priority) {
           rmp->priority -= 1; /* increase priority */
           schedule_process(rmp);
         }
       }
-    } else { /* user process (do nada) */ }
+    }
   }
   set_timer(&sched_timer, balance_timeout, balance_queues, 0);
 }
@@ -312,8 +328,12 @@ void set_tix(struct schedproc *rmp, int new_q)
  *		                		lotterty_winner	                        			     *
  *===========================================================================*/
 
- /* Determines the lottery winner. 
-  *
+ /* Determines the lottery winner. Procedure is:
+  * (1) Count total tickets in lottery
+  * (2) Set winning ticket to a random number between 1 and total (check for N/0 error)
+  * (3) Step through processes in MIN_USER_Q, decrementing total.
+  * (4) If total falls to or below zero, the current process wins. 
+  * (5) Increase priority of that process to MAX_USER_Q and schedule it.
   */
 int lottery_winner()
 {

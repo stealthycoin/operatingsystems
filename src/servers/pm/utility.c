@@ -109,6 +109,7 @@ pid_t lpid;
  *===========================================================================*/
 PUBLIC int nice_to_priority(int nice, unsigned* new_q)
 {
+  /* Commented out by Brilliant Squid to allow arbitrary ticket requests*/
 	/* if (nice < PRIO_MIN || nice > PRIO_MAX) return(EINVAL); */
 
 	*new_q = MAX_USER_Q + (nice-PRIO_MIN) * (MIN_USER_Q-MAX_USER_Q+1) /

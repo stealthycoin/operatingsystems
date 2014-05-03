@@ -84,6 +84,8 @@ PUBLIC int sched_start_user(endpoint_t ep, struct mproc *rmp)
 
 /*===========================================================================*
  *				sched_nice				     *
+ *				** Modified by Brilliant Squid 
+ *				** Sets m.SCHEDULING_MAXPRIO = nice
  *===========================================================================*/
 PUBLIC int sched_nice(struct mproc *rmp, int nice)
 {

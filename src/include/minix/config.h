@@ -74,6 +74,9 @@
 
 /* Scheduling priorities. Values must start at zero (highest
  * priority) and increment.
+ *
+ * Modified by Brilliant Squid
+ * 13 is MAX_USER_Q, 15 is MIN_USER_Q
  */
 #define NR_SCHED_QUEUES   16	/* MUST equal minimum priority + 1 */
 #define TASK_Q		   0	/* highest, used for kernel tasks */
