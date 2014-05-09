@@ -1,0 +1,63 @@
+Program Description:
+  This program provides extended versions of malloc and free that check for
+  common allocations problems and mistakes, as well as a function that prints
+  out all allocated memory along with some statistics. Finally, the allocation
+  suite will install a custom exit handler to detect memory leaks.
+
+Function Descriptions ( slug_mem.c ):
+  (-) void *slug_malloc ( size_t size, char *WHERE );
+
+      This function will allocate memory by calling malloc(). It also records
+      the address, length, current timestamp, and location of the call in an
+      internal data structure. If size is 0, this is not an error but should be
+      reported on stderr as an unusual operation. If the input is > 128 MiB,
+      then an error is reported to stderr and execution terminates. The
+      parameter WHERE is a string constant that records the filename and line
+      # of the caller.
+
+  (-) void slug_free ( void *addr, char *WHERE );
+
+      This function ensure that addr is the start of a valid memory region that
+      is currently allocated by looking at an internal data structure. If not,
+      an error is shown and the program is terminated. If it is valid then
+      free() should be called and the internal data structures updated to
+      indicate that the address is no longer actively allocated.
+
+  (-) void slug_memstats ( void );
+
+      This function traverses the interal data structures and prints out
+      information about all current allocations. Each allocation report should
+      include the size of the allocation, a timestamp for when the allocation
+      took place, the actual address of the allocation, and file and line
+      number in the test program where the allocation happened. In addition, a
+      summary of all allocations should be reported, including the total # of
+      allocations done, the # of currently active allocations, the total
+      amount of memory currently allocated, and the mean and stdev of sizes
+      that have been allocated.
+
+Preprocessor Replacement and Leak Detection:
+  (-) Header File ( slug_mem.h )
+
+      This file will have a number of preprocessor macros to replace normal
+      calls to malloc and free. This way, anyone who wants to use our memory
+      allocation suite can #include "slug_mem.h" without sacrificing portability.
+
+  (-) Leak Detection
+
+      We also will set up an exit handler to print out all the memory that was
+      allocated but not freed, using slug_memstats(). Also, our handler should
+      only be installed if memory is actually allocated.
+
+Testing:
+  (-) Show a test program that correctly uses allocation in a non-trival way runs
+      properly.
+  (-) Show that after allocating and deallocating memory, trying to deallocate an
+      invalid address is immediately detected.
+  (-) Show that after allocating and deallocating memory, trying to deallocate an
+      already freed region is immediately detected.
+  (-) Show that after allocating and deallocating memory, trying to deallocate a
+      valid region by passing in a pointer inside the region is immediately detected.
+  (-) Show that allocating memory and then exiting triggers the leak detector and
+      shows where the leak occured.
+  (-) Experiment with other memory allocation mistakes to see what you are able to
+      detect.
