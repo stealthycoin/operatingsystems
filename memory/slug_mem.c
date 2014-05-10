@@ -7,23 +7,28 @@
 
 /* Stores a single entry for an allocated block.
  */
-typedef struct mem_block {
+struct mem_block
+{
   void *address;
   size_t length;
   time_t time_alloc;
   char *location;
-  struct *mem_block next;
-  struct *mem_block prev;
-} mem_block;
+  struct mem_block *prev;
+  struct mem_block *next;
+};
 
 /* Linked list for organizing allocated memory. 
  */
-typedef struct mem_list {
+struct mem_list
+{
   int tot_alloc;
   int cur_alloc;
   size_t cur_mem_alloc;
   struct mem_block *head;
-} mem_list;
+  struct mem_block *tail;
+};
+
+static struct mem_list MemoryList = {0, 0, 0, 0, 0};
 
 /*****************************************************************************
  * slug_malloc()
@@ -39,39 +44,56 @@ typedef struct mem_list {
  ****************************************************************************/
 void *slug_malloc(size_t size, char *WHERE)
 {
-  /* Define memory block entry.
-   */
-  mem_block *entry;
-  if ((entry = malloc(sizeof(mem_block))) == NULL) {
-      perror("Error allocating entry.");
+  /* Allocate memory for a new block */
+  struct mem_block *block;
+  if ((block = malloc(sizeof(struct mem_block))) == NULL) {
+      perror("Error allocating block.");
       exit(2);
   }
 
-  /* Allocate requested memory.
-   * First report if size == 0
-   */
+  /* Report if requested size == 0 */
   if (size == 0) {
-    perror("Allocating zero blocks.");
+    perror("Requesting zero bytes.");
   }
 
-  if ((entry->address = malloc(size)) == NULL) {
-    perror("Error allocating requested block.");
+  /* Allocate requested block */
+  if ((block->address = malloc(size)) == NULL) {
+    perror("Error allocating requested memory.");
     exit(3);
   }
 
+  /* Initialize block */
+  block->length = size;
+  block->time_alloc = time(NULL);
+  block->location = WHERE;
+  block->prev = MemoryList.tail;
+  block->next = NULL;
+
+  /* Update list */
+  MemoryList.cur_alloc++;
+  MemoryList.tot_alloc++;
+  MemoryList.cur_mem_alloc += size; 
+  if (MemoryList.cur_alloc == 1) {
+    MemoryList.head = block;
+  } else {
+    MemoryList.tail->next = block;
+  }
+
+  MemoryList.tail = block;
+  return block->address;
 }
 
 /*****************************************************************************
  * slug_free()
  *
- * This function ensure that addr is the start of a valid memory region that
+ * This function ensures that addr is the start of a valid memory region that
  * is currently allocated by looking at an internal data structure. If not,
  * an error is shown and the program is terminated. If it is valid then
  * free() should be called and the internal data structures updated to
  * indicate that the address is no longer actively allocated.
  ****************************************************************************/
 
-void slug_free ( void *addr, char *WHERE );
+void slug_free ( void *addr, char *WHERE )
 {
 
 }
@@ -89,5 +111,7 @@ void slug_free ( void *addr, char *WHERE );
  * amount of memory currently allocated, and the mean and stdev of sizes
  * that have been allocated.
  ****************************************************************************/
-void slug_memstats ( void );
+void slug_memstats ( void )
+{
 
+}
