@@ -4,6 +4,7 @@
  *******************/
 #include <stdlib.h>
 #include <time.h>
+#include <stdio.h>
 
 /* Stores a single entry for an allocated block.
  */
@@ -28,7 +29,7 @@ struct mem_list
   struct mem_block *tail;
 };
 
-static struct mem_list MemoryList = {0, 0, 0, 0, 0};
+struct mem_list MemoryList = {0, 0, 0, 0, 0};
 
 /*****************************************************************************
  * slug_malloc()
