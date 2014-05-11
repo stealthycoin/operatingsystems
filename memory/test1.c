@@ -3,6 +3,9 @@
 #include <string.h>
 #include "slug_mem.h"
 
+/* Test program to demo proper allocation and deallocation
+ */
+
 int main(void){
     char *string1, *string2;
     string1 = (char *) malloc(sizeof(char) * 8);

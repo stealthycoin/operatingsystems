@@ -161,6 +161,7 @@ void slug_memstats ( void )
 {
     int i = 1;
     struct mem_block *block;
+    printf("Currrent Allocations: %d \n", MemoryList.cur_alloc);
     for (block = MemoryList.head; block != NULL; block = block->next) {
         printf("Block %d:\n "
                 "\t-> Address: %p\n"
@@ -171,8 +172,7 @@ void slug_memstats ( void )
         i++;
     }
     printf("\n");
-    printf("Currently active allocations:       %d\n", MemoryList.cur_alloc);
-    printf("Current size of active allocations: %lu\n", MemoryList.cur_mem_alloc);
+    printf("Size of active allocations:         %lu\n", MemoryList.cur_mem_alloc);
     printf("Total allocations made:             %d\n", MemoryList.tot_alloc);
     printf("\n");
     printf("Average block size:                 %f\n", MemoryList.mean);

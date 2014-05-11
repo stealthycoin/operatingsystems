@@ -3,6 +3,9 @@
 #include <string.h>
 #include "slug_mem.h"
 
+/* Test program to demonstrate forgotten deallocation
+ */
+
 int main(void){
     char *string[4];
     int *num[4];
@@ -15,11 +18,8 @@ int main(void){
         *num[i] = i;
     }
 
-    /*slug_memstats();*/
-
     for (i = 0; i < 4; i++) {
         free(string[i]);
-        free(num[i]);
     }
 
     return 1;
