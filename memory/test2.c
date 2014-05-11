@@ -15,7 +15,7 @@ int main(void){
         *num[i] = i;
     }
 
-    slug_memstats();
+    /*slug_memstats();*/
 
     for (i = 0; i < 4; i++) {
         free(string[i]);

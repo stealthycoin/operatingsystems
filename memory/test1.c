@@ -12,7 +12,6 @@ int main(void){
     strcpy(string1, test1);
     strcpy(string2, test2);
     printf("%s %s\n", string1, string2);
-    slug_memstats();
 
     free(string1);
     free(string2);

@@ -32,7 +32,13 @@ struct mem_list
     float pwr_sum_avg;          /* Used to compute stdev of block size */
 };
 
-struct mem_list MemoryList = {0, 0, 0, 0, 0, 0.0, 0.0};
+/* Memory management data structure */
+static struct mem_list MemoryList = {0, 0, 0, 0, 0, 0.0, 0.0};
+
+/* Function declarations */
+void *slug_malloc ( size_t size, char *WHERE );
+void slug_free ( void *addr, char *WHERE );
+void slug_memstats ( void );
 
 /*****************************************************************************
  * slug_malloc()
@@ -54,6 +60,9 @@ void *slug_malloc(size_t size, char *WHERE)
         perror("Error allocating block.");
         exit(2);
     }
+
+    if (MemoryList.tot_alloc == 0)
+        atexit(slug_memstats);
 
     /* Report if requested size == 0 */
     if (size == 0) {
