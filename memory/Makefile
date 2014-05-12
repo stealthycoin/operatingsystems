@@ -1,15 +1,15 @@
 all : test1 test2 test3 test4
 
-test1 : test1.c
+test1 : test1.c slug_mem.c slug_mem.h
 	gcc -o test1 test1.c slug_mem.c
 
-test2 : test2.c
+test2 : test2.c slug_mem.c slug_mem.h
 	gcc -o test2 test2.c slug_mem.c
 
-test3 : test3.c
+test3 : test3.c slug_mem.c slug_mem.h
 	gcc -o test3 test3.c slug_mem.c
 
-test4 : test4.c
+test4 : test4.c slug_mem.c slug_mem.h
 	gcc -o test4 test4.c slug_mem.c
 
 clean :

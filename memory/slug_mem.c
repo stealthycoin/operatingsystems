@@ -61,6 +61,7 @@ void *slug_malloc(size_t size, char *WHERE)
         exit(2);
     }
 
+    /* Call memstats on exit */
     if (MemoryList.tot_alloc == 0)
         atexit(slug_memstats);
 
@@ -113,10 +114,7 @@ void slug_free ( void *addr, char *WHERE )
 {
     /* Locate requested block to be freed */
     struct mem_block *block;
-    for (block = MemoryList.head; block != NULL; block = block->next) {
-        if (block->address == addr)
-            break;
-    }
+    for (block = MemoryList.head; block != NULL && block != addr; block = block->next) ;
 
     /* Ensure block is not null */
     if (block == NULL) {
