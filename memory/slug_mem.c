@@ -114,7 +114,7 @@ void slug_free ( void *addr, char *WHERE )
 {
     /* Locate requested block to be freed */
     struct mem_block *block;
-    for (block = MemoryList.head; block != NULL && block != addr; block = block->next) ;
+    for (block = MemoryList.head; block != NULL && block->address != addr; block = block->next) ;
 
     /* Ensure block is not null */
     if (block == NULL) {
@@ -175,7 +175,9 @@ void slug_memstats ( void )
     printf("\n");
     printf("Average block size:                 %f\n", MemoryList.mean);
     printf("Standard deviation:                 %f\n", \
-            sqrt( ( MemoryList.pwr_sum_avg * MemoryList.tot_alloc \
+            MemoryList.tot_alloc > 1 ? \
+                sqrt( ( MemoryList.pwr_sum_avg * MemoryList.tot_alloc \
                   - MemoryList.tot_alloc * MemoryList.mean * MemoryList.mean) \
-                / ( (float) (MemoryList.tot_alloc - 1) ) ) );
+                / ( (float) (MemoryList.tot_alloc - 1) ) ) \
+                : 0);
 }
