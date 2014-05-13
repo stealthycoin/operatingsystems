@@ -4,6 +4,7 @@
  *******************/
 #include <stdlib.h>
 #include <time.h>
+#include <sys/time.h>
 #include <stdio.h>
 #include <math.h>
 
@@ -13,7 +14,7 @@ struct mem_block
 {
     void *address;
     size_t length;
-    time_t time_alloc;
+    double timestamp;
     char *location;
     struct mem_block *prev;
     struct mem_block *next;
@@ -54,8 +55,10 @@ void slug_memstats ( void );
  ****************************************************************************/
 void *slug_malloc(size_t size, char *WHERE)
 {
-    /* Allocate memory for a new block */
+    int err;
     struct mem_block *block;
+    struct timeval tv;
+    /* Allocate memory for a new block */
     if ((block = malloc(sizeof(struct mem_block))) == NULL) {
         perror("Error allocating block.");
         exit(2);
@@ -78,10 +81,16 @@ void *slug_malloc(size_t size, char *WHERE)
 
     /* Initialize block */
     block->length = size;
-    block->time_alloc = time(NULL);
     block->location = WHERE;
     block->prev = MemoryList.tail;
     block->next = NULL;
+    err = gettimeofday(&tv, NULL);
+    if (!err) {
+        block->timestamp = tv.tv_sec + tv.tv_usec * 1e-6;
+    } else {
+        perror("Error setting time stamp");
+        exit(4);
+    }
 
     /* Update stats and list */
     MemoryList.cur_alloc++;
@@ -164,9 +173,9 @@ void slug_memstats ( void )
         printf("Block %d:\n "
                 "\t-> Address: %p\n"
                 "\t-> Size: %lu\n"
-                "\t-> Timestamp: %ld\n"
+                "\t-> Timestamp: %f\n"
                 "\t-> Location called: %s\n",\
-                i, block->address, block->length, block->time_alloc, block->location);
+                i, block->address, block->length, block->timestamp, block->location);
         i++;
     }
     printf("\n");
