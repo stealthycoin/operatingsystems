@@ -1,4 +1,4 @@
-all : mem test1 test2 test3 test4 test5 test6 test7
+all : mem test1 test2 test3 test4 test5 test6 test7 test8
 
 mem: slug_mem.c slug_mem.h
 	gcc -c slug_mem.c -lm
@@ -24,6 +24,9 @@ test6: test6.c slug_mem.c slug_mem.h
 test7: test7.c slug_mem.c slug_mem.h
 	gcc -o test7 test7.c slug_mem.o -lm
 
+test8: test8.c slug_mem.c slug_mem.h
+	gcc -o test8 test8.c slug_mem.o -lm
+
 clean:
 	-rm test[1-9]
 	-rm result[1-9]
@@ -37,3 +40,4 @@ test:
 	-./test5 ?> result5
 	-./test6 ?> result6
 	-./test7 ?> result7
+	-./test8 ?> result8

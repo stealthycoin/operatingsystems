@@ -58,6 +58,12 @@ void *slug_malloc(size_t size, char *WHERE)
     int err;
     struct mem_block *block;
     struct timeval tv;
+    /* Check if block is larger than 128 mb and exit gracefully if so */
+    if (size > 1024 * 1024 * 128) {
+      fprintf(stderr, "Block of size %ld is to large, requested from %s.\n", size, WHERE);
+      exit(1);
+    }
+
     /* Allocate memory for a new block */
     if ((block = malloc(sizeof(struct mem_block))) == NULL) {
         perror("Error allocating block.");
