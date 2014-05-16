@@ -22,5 +22,5 @@ int main(void){
         free(string[i]);
     }
 
-    return 1;
+    return 0;
 }

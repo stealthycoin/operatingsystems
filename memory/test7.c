@@ -9,7 +9,7 @@ struct list_el {
 
 typedef struct list_el item;
 
-void main() {
+int main() {
   item *curr, *head;
   int i;
 
@@ -28,4 +28,6 @@ void main() {
     printf("%p\n", curr->val);
     curr = curr->next ;
   }
+
+  return 0;
 }

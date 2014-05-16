@@ -16,5 +16,5 @@ int main(void){
     free(string);
     free(num);
 
-    return 1;
+    return 0;
 }

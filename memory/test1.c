@@ -18,4 +18,6 @@ int main(void){
 
     free(string1);
     free(string2);
+    
+    return 0;
 }
