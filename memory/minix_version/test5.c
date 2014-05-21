@@ -10,6 +10,9 @@
 int main(void){
     char *string;
     const char* hello = "Hello, world!\n";
+
+    printf("Test program to alloc memory and then exit.\n");
+    printf("\n\n");
     string = (char *) malloc(15*sizeof(char));
 
     return 0;

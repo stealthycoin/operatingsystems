@@ -10,6 +10,9 @@ int main(void){
     char *string1, *string2;
     const char* test1 = "Testing";
     const char* test2 = "1 2 3";
+
+    printf("Test program to demo proper allocation and deallocation.\n");
+    printf("\n\n");
     string1 = (char *) malloc(sizeof(char) * 8);
     string2 = (char *) malloc(sizeof(char) * 6);
     strcpy(string1, test1);

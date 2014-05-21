@@ -10,6 +10,10 @@
 int main(void){
     char *string;
     const char* hello = "Hello, world!\n";
+
+    printf("Test program to demonstrate an attempt to deallocate previously \
+            deallocated memory.\n");
+    printf("\n\n");
     string = (char *) malloc(15*sizeof(char));
     strcpy(string, hello);
     free(string);
