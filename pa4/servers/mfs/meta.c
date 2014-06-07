@@ -33,6 +33,8 @@ PUBLIC int fs_metareadwrite(void)
   
   r = OK;
   
+  printf("Within fs_metareadwrite\n");
+
   /* Find the inode referred */
   if ((rip = find_inode(fs_dev, (ino_t) fs_m_in.REQ_INODE_NR)) == NULL)
 	return(EINVAL);
@@ -44,7 +46,7 @@ PUBLIC int fs_metareadwrite(void)
   block_size = rip->i_sp->s_block_size;
 
   /* Get the values from the request message */ 
-  rw_flag = (fs_m_in.m_type == REQ_MREAD ? READING : WRITING);
+  rw_flag = (fs_m_in.m_type == REQ_READ ? READING : WRITING);
   gid = (cp_grant_id_t) fs_m_in.REQ_GRANT;
   nrbytes = (size_t) fs_m_in.REQ_NBYTES;
   
@@ -58,6 +60,8 @@ PUBLIC int fs_metareadwrite(void)
 	  /* Read or write 'chunk' bytes. */
 	  r = rw_metachunk(rip, chunk,
 	  	       nrbytes, rw_flag, gid, cum_io, block_size, &completed);
+
+      printf("returned from metachunk\n");
 
 	  if (r != OK) break;	/* EOF reached */
 	  if (rdwt_err < 0) break;
@@ -150,11 +154,15 @@ int *completed;			/* number of bytes copied */
 	/* Copy a chunk from the block buffer to user space. */
 	r = sys_safecopyto(VFS_PROC_NR, gid, (vir_bytes) buf_off,
 			   (vir_bytes) (bp->b_data), (size_t) chunk, D);
+    printf("Just read the following:\n");
+    printf("%s\n", bp->b_data);
   } else {
 	/* Copy a chunk from user space to the block buffer. */
 	r = sys_safecopyfrom(VFS_PROC_NR, gid, (vir_bytes) buf_off,
 			     (vir_bytes) (bp->b_data), (size_t) chunk, D);
 	bp->b_dirt = DIRTY;
+    printf("Just wrote the following:\n");
+    printf("%s\n", bp->b_data);
   }
   
   n = (chunk == block_size ? FULL_DATA_BLOCK : PARTIAL_DATA_BLOCK);

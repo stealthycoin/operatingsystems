@@ -59,11 +59,10 @@ int rw_flag;			/* READING or WRITING */
   /* If the file descriptor is valid, get the vnode, size and mode. */
   if (m_in.nbytes < 0) return(EINVAL);
   if ((f = get_filp(m_in.fd)) == NULL) return(err_code);
-  if (((f->filp_mode) & (rw_flag == READING ? R_BIT : W_BIT)) == 0) {
-	return(f->filp_mode == FILP_CLOSED ? EIO : EBADF);
-  }
   if (m_in.nbytes == 0)
 	return(0);	/* so char special files need not check for 0*/
+
+  printf("in meta_read_write, past initial checks\n");
 
   /* position = f->filp_pos; */
   oflags = f->filp_flags;

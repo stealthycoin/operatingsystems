@@ -6,7 +6,8 @@
 
 int main (int args, char **argv) {
   int err, fd, nbytes;
-  char *fname, *buffer;
+  char *fname;
+  char buffer[1025];
 
   if (args < 2) {
     printf ("Too few arguments.\nUsage: metacat FILE\n");

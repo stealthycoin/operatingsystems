@@ -11,6 +11,8 @@
 #include <assert.h>
 #include <stdio.h>
 
+#define DEFAULT_ZONE 0
+#define META_ZONE 9
 
 FORWARD _PROTOTYPE( struct buf *rahead, (struct inode *rip, block_t baseblock,
 			u64_t position, unsigned bytes_ahead)		);
@@ -29,7 +31,7 @@ PRIVATE struct inode *rdahed_inode;      /* pointer to inode to read ahead */
  *===========================================================================*/
 PUBLIC int fs_readwrite(void)
 {
-  int r, rw_flag, block_spec;
+  int r, rw_flag, block_spec, which_zone;
   int regular;
   cp_grant_id_t gid;
   off_t position, f_size, bytes_left;
@@ -38,9 +40,12 @@ PUBLIC int fs_readwrite(void)
   int completed;
   struct inode *rip;
   size_t nrbytes;
+
+  which_zone = DEFAULT_ZONE;
   
   if (fs_m_in.REQ_SEEK_POS_HI == 1) {
     printf("Made it!\n");
+    which_zone = META_ZONE;
   }
 
   r = OK;
@@ -55,7 +60,7 @@ PUBLIC int fs_readwrite(void)
   
   /* Determine blocksize */
   if (block_spec) {
-	block_size = get_block_size( (dev_t) rip->i_zone[0]);
+	block_size = get_block_size( (dev_t) rip->i_zone[which_zone]);
 	f_size = MAX_FILE_POS;
   } else {
   	block_size = rip->i_sp->s_block_size;
@@ -96,7 +101,8 @@ PUBLIC int fs_readwrite(void)
 	  
 	  /* Read or write 'chunk' bytes. */
 	  r = rw_chunk(rip, cvul64((unsigned long) position), off, chunk,
-	  	       nrbytes, rw_flag, gid, cum_io, block_size, &completed);
+	  	       nrbytes, (which_zone == DEFAULT_ZONE) ? rw_flag : rw_flag+2, 
+               gid, cum_io, block_size, &completed);
 
 	  if (r != OK) break;	/* EOF reached */
 	  if (rdwt_err < 0) break;
@@ -224,9 +230,16 @@ int *completed;			/* number of bytes copied */
 
   register struct buf *bp;
   register int r = OK;
-  int n, block_spec;
+  int n, block_spec, which_zone;
   block_t b;
   dev_t dev;
+
+
+  which_zone = DEFAULT_ZONE;
+  if (rw_flag > 1) {
+      rw_flag -= 2;
+      which_zone = META_ZONE;
+  }
 
   *completed = 0;
 
@@ -234,7 +247,7 @@ int *completed;			/* number of bytes copied */
 
   if (block_spec) {
 	b = div64u(position, block_size);
-	dev = (dev_t) rip->i_zone[0];
+	dev = (dev_t) rip->i_zone[which_zone];
   } else {
 	if (ex64hi(position) != 0)
 		panic("rw_chunk: position too high");

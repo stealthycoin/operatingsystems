@@ -494,10 +494,11 @@ unsigned int *cum_iop;
 	  panic("req_readwrite: cpf_grant_magic failed");
 
   /* Fill in request message */
-  m.m_type = rw_flag == READING ? REQ_MREAD : REQ_MWRITE;
+  m.m_type = rw_flag == READING ? REQ_READ : REQ_WRITE;
   m.REQ_INODE_NR = inode_nr;
   m.REQ_GRANT = grant_id;
-  m.REQ_SEEK_POS_LO = m.REQ_SEEK_POS_HI = 0;	/* Not used. */
+  m.REQ_SEEK_POS_LO = 0; /* Not used. */
+  m.REQ_SEEK_POS_HI = 1;	
   m.REQ_NBYTES = num_of_bytes;
   
   /* Send/rec request */

@@ -58,9 +58,10 @@
 #define SETGROUPS	  66
 #define GETMCONTEXT       67
 #define SETMCONTEXT       68
-#define METAR             69
-#define METAW             70
 
+/* META GODS */
+#define METAR           69
+#define METAW           70
 
 /* Posix signal handling. */
 #define SIGACTION	  71

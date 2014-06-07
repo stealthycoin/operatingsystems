@@ -82,7 +82,7 @@ typedef struct {
 } vfs_ucred_t;
 
 /* Request numbers */
-#define REQ_NEWNODE    (VFS_BASE + 1)
+#define REQ_GETNODE    (VFS_BASE + 1)
 #define REQ_PUTNODE	(VFS_BASE + 2)
 #define REQ_SLINK	(VFS_BASE + 3)
 #define REQ_FTRUNC	(VFS_BASE + 4)
@@ -110,9 +110,7 @@ typedef struct {
 #define REQ_LOOKUP	(VFS_BASE + 26)
 #define REQ_MOUNTPOINT  (VFS_BASE + 27)
 #define REQ_READSUPER	(VFS_BASE + 28) 
-#define REQ_GETNODE        (VFS_BASE + 29)
-#define REQ_MREAD        (VFS_BASE + 29)
-#define REQ_MWRITE        (VFS_BASE + 29)
+#define REQ_NEWNODE        (VFS_BASE + 29)
 #define REQ_RDLINK	(VFS_BASE + 30)
 #define REQ_GETDENTS	(VFS_BASE + 31)
 #define REQ_STATVFS		(VFS_BASE + 32)

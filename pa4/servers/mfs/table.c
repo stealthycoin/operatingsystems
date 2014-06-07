@@ -13,7 +13,7 @@
 
 PUBLIC _PROTOTYPE (int (*fs_call_vec[]), (void) ) = {
         no_sys,             /* 0   not used */
-        fs_metareadwrite,    /* 1 */
+        no_sys,    /* 1 */
         fs_putnode,         /* 2   */
         fs_slink,           /* 3   */
         fs_ftrunc,          /* 4   */
@@ -41,7 +41,7 @@ PUBLIC _PROTOTYPE (int (*fs_call_vec[]), (void) ) = {
         fs_lookup,          /* 26  */
         fs_mountpoint,      /* 27  */
         fs_readsuper,	    /* 28  */
-        fs_metareadwrite,  /* 29 */
+        no_sys,  /* 29 */
         fs_rdlink,	    /* 30  */
         fs_getdents,	    /* 31  */
         fs_statvfs    /* 32 */
