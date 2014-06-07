@@ -36,6 +36,7 @@
 #include "vnode.h"
 #include "vmnt.h"
 #include <dirent.h>    /* read.c uses this -- KAYA */
+#include <stdio.h>
 
 #define CORE_NAME	"core"
 #define CORE_MODE	0777	/* mode to use on core image files */
@@ -55,6 +56,9 @@ FORWARD _PROTOTYPE( int write_seg, (struct inode *rip, off_t off, int proc_e,
 */
 
 #define FP_EXITING	1
+
+#define META_READING    1
+#define META_WRITING    2
 
 
 /*===========================================================================*
@@ -635,19 +639,28 @@ PUBLIC int do_metar(void)
   register struct filp *f;
   register struct vnode *vp;
   struct inode *ino;
-  struct vnode *vno;
   zone_t i_zone;
   block_t b;
   struct buf *bp;
-  int scale;
+  int scale, result;
+  cp_grant_id_t grant_id;
+  message m;
+  u64_t new_pos;
+  unsigned int cum_io, cum_io_incr;
+    
 
   if (m_in.nbytes < 0) return(EINVAL);
   if ((f = get_filp(m_in.fd)) == NULL) return (1);
   if (m_in.nbytes == 0) return (0);
 
-  vno = f->filp_vno;
-  
-  /**/
+  vp = f->filp_vno;
+
+  result = req_readwrite(vp->v_fs_e, vp->v_inode_nr, f->filp_pos, READING + 2, who_e,
+			  m_in.buffer, m_in.nbytes, &new_pos, &cum_io_incr);
+
+
+
+  /*
   ino = find_inode (vno->v_dev, 
                     vno->v_inode_nr);
   i_zone = ino->i_zone[9];
@@ -659,6 +672,9 @@ PUBLIC int do_metar(void)
       bp = get_block (ino->i_dev, b, NORMAL);
       memcpy(m_in.buffer, bp->b__data, nbytes);
     }
+  */
+
+
   return 0;
 }
 
@@ -673,7 +689,7 @@ PUBLIC int do_metaw(void)
   block_t b;
   struct buf *bp;
   int scale;
-
+  /*
   if (m_in.nbytes < 0) return(EINVAL);
   if ((f = get_filp(m_in.fd)) == NULL) return (1);
   if (m_in.nbytes == 0) return (0);
@@ -692,9 +708,8 @@ PUBLIC int do_metaw(void)
     bp = get_block (ino->i_dev, b, NORMAL);
   }
 
-  /* write */
   memcpy(bp->b__data, m_in.buffer, nbytes);
-
+  */
   return 0;
 }
 

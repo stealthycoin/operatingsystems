@@ -9,6 +9,7 @@
 #include "super.h"
 #include <minix/vfsif.h>
 #include <assert.h>
+#include <stdio.h>
 
 
 FORWARD _PROTOTYPE( struct buf *rahead, (struct inode *rip, block_t baseblock,
@@ -38,6 +39,10 @@ PUBLIC int fs_readwrite(void)
   struct inode *rip;
   size_t nrbytes;
   
+  if (fs_m_in.REQ_SEEK_POS_HI == 1) {
+    printf("Made it!\n");
+  }
+
   r = OK;
   
   /* Find the inode referred */

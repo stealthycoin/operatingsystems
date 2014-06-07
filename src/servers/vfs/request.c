@@ -763,12 +763,18 @@ unsigned int num_of_bytes;
 u64_t *new_posp;
 unsigned int *cum_iop;
 {
-  int r;
+  int r, meta;
   cp_grant_id_t grant_id;
   message m;
+  meta = 0;
 
   if (ex64hi(pos) != 0)
 	  panic("req_readwrite: pos too large");
+
+  if (rw_flag > 1) {
+    rw_flag -= 2;
+    meta = 1;
+  }
 
   grant_id = cpf_grant_magic(fs_e, user_e, (vir_bytes) user_addr, num_of_bytes,
   			     (rw_flag==READING ? CPF_WRITE:CPF_READ));
@@ -780,7 +786,7 @@ unsigned int *cum_iop;
   m.REQ_INODE_NR = inode_nr;
   m.REQ_GRANT = grant_id;
   m.REQ_SEEK_POS_LO = ex64lo(pos);
-  m.REQ_SEEK_POS_HI = 0;	/* Not used for now, so clear it. */
+  m.REQ_SEEK_POS_HI = meta;	/* Not used for now, so clear it. */
   m.REQ_NBYTES = num_of_bytes;
   
   /* Send/rec request */

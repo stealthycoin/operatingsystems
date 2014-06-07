@@ -6,4 +6,6 @@ cp ../src/include/Makefile /usr/src/include/
 cp ../src/servers/vfs/misc.c /usr/src/servers/vfs/
 cp ../src/servers/vfs/table.c /usr/src/servers/vfs/
 cp ../src/servers/vfs/proto.h /usr/src/servers/vfs/
+cp ../src/servers/vfs/request.c /usr/src/servers/vfs/
+cp ../src/servers/mfs/read.c /usr/src/servers/mfs/
 
