@@ -1,11 +1,7 @@
 #!/bin/sh
 
-cp ../src/include/minix/callnr.h /usr/src/include/minix/
-cp ../src/include/meta.h /usr/src/include/
-cp ../src/include/Makefile /usr/src/include/
-cp ../src/servers/vfs/misc.c /usr/src/servers/vfs/
-cp ../src/servers/vfs/table.c /usr/src/servers/vfs/
-cp ../src/servers/vfs/proto.h /usr/src/servers/vfs/
-cp ../src/servers/vfs/request.c /usr/src/servers/vfs/
-cp ../src/servers/mfs/read.c /usr/src/servers/mfs/
+cp ../pa4/include/minix/* /usr/src/include/minix/
+cp ../pa4/include/* /usr/src/include/
+cp ../pa4/servers/vfs/* /usr/src/servers/vfs/
+cp ../pa4/servers/mfs/* /usr/src/servers/mfs/
 
