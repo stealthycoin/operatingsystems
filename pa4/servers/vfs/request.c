@@ -1,3 +1,5 @@
+/* CHANGED -- June 8, 2014 */
+
 /* This file contains the wrapper functions for issueing a request
  * and receiving response from FS processes.
  * Each function builds a request message according to the request
@@ -471,8 +473,17 @@ PUBLIC int req_lookup(
 }
 
 
+/* CHANGE START */
 /*===========================================================================*
  *				req_metareadwrite				     *
+ *
+ *  This function creates the message for the meta read / write request
+ *  and sends it to the MFS via fs_sendrec()
+ *
+ *
+ *  Note that we recycle the REQ_READ message type and use REQ_SEEK_POS_HI
+ *  to indicate a metaread / metawrite.
+ *
  *===========================================================================*/
 PUBLIC int req_metareadwrite(fs_e, inode_nr, rw_flag, user_e,
 	user_addr, num_of_bytes, cum_iop)
@@ -498,7 +509,7 @@ unsigned int *cum_iop;
   m.REQ_INODE_NR = inode_nr;
   m.REQ_GRANT = grant_id;
   m.REQ_SEEK_POS_LO = 0; /* Not used. */
-  m.REQ_SEEK_POS_HI = 1;	
+  m.REQ_SEEK_POS_HI = 1;	/* Indicates "meta" read/write */
   m.REQ_NBYTES = num_of_bytes;
   
   /* Send/rec request */
@@ -512,7 +523,7 @@ unsigned int *cum_iop;
   
   return(r);
 }
-
+/* CHANGE END */
 
 /*===========================================================================*
  *				req_mkdir	      			     *

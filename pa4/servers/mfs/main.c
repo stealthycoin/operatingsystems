@@ -1,3 +1,5 @@
+/* CHANGED -- June 8, 2014 */
+
 #include "fs.h"
 #include <assert.h>
 #include <minix/callnr.h>
@@ -40,6 +42,7 @@ PUBLIC int main(int argc, char *argv[])
   while(!unmountdone || !exitsignaled) {
 	endpoint_t src;
 
+    /* CHANGE START */
     metaflag = 0;
 	/* Wait for request message. */
 	get_work(&fs_m_in);
@@ -50,6 +53,7 @@ PUBLIC int main(int argc, char *argv[])
 	caller_gid = INVAL_GID;
 	req_nr = fs_m_in.m_type;
 
+    /* This is where we use REQ_SEEK_POS_HI to set metaflag */
     if ((req_nr == REQ_READ || req_nr == REQ_WRITE) && fs_m_in.REQ_SEEK_POS_HI == 1) {
         metaflag = 1;
     }
@@ -66,8 +70,10 @@ PUBLIC int main(int argc, char *argv[])
 		printf("ind = %d\n", ind);
 		error = EINVAL; 
 	} else if (metaflag) {
-        printf("Metaflag set\n");
+        /* Changing the call_vec size caused global errors, so instead we just
+         * call fs_metareadwrite() directly in the appropriate case */
         error = fs_metareadwrite();
+        /* CHANGE END */
     } else {
 		error = (*fs_call_vec[ind])();
 		/*cch_check();*/

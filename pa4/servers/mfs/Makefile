@@ -1,3 +1,5 @@
+# CHANGED -- June 8th 2014
+# (all we did was add meta.c to the SRCS var)
 # Makefile for Minix File System (MFS)
 PROG=	mfs
 SRCS=	cache.c device.c link.c \

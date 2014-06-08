@@ -1,3 +1,5 @@
+/* CHANGED -- June 8, 2014 */
+
 /* This file contains the table used to map system call numbers onto the
  * routines that perform them.
  */
@@ -84,8 +86,8 @@ PUBLIC _PROTOTYPE (int (*call_vec[]), (void) ) = {
 	no_sys, 	/* 66 = unused  */
 	no_sys,		/* 67 = unused	*/
 	no_sys,		/* 68 = unused	*/
-	do_metar,		/* 69 = unused  */
-	do_metaw,		/* 70 = unused  */
+	do_metar,		/* 69 = unused  */ /* CHANGE START */
+	do_metaw,		/* 70 = unused  */ /* CHANGE END */
 	no_sys,		/* 71 = (sigaction) */
 	no_sys,		/* 72 = (sigsuspend) */
 	no_sys,		/* 73 = (sigpending) */

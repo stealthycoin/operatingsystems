@@ -1,3 +1,5 @@
+# CHANGED -- June 8, 2014
+#  (we just added meta.c to SRCS)
 # Makefile for Virtual File System (VFS)
 PROG=	vfs
 SRCS=	main.c open.c read.c write.c pipe.c dmap.c \

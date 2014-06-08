@@ -1,3 +1,5 @@
+# CHANGED -- June 8th 2014
+# Just added meta.h to the INCS variable. Nothing more.
 # Doing a make includes builds /usr/include
 
 INCS=	alloca.h ansi.h a.out.h ar.h assert.h configfile.h ctype.h \

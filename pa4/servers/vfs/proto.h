@@ -1,3 +1,5 @@
+/* CHANGED -- June 8, 2014 */
+
 /* Function prototypes. */
 
 #include "timers.h"
@@ -90,9 +92,11 @@ _PROTOTYPE( void lock_revive, (void)					);
 _PROTOTYPE( int main, (void)						);
 _PROTOTYPE( void reply, (int whom, int result)				);
 
+/* CHANGE START */
 /* meta.c */
 _PROTOTYPE( int do_metar, (void)						);
 _PROTOTYPE( int do_metaw, (void)						);
+/* CHANGE END */
 
 /* misc.c */
 _PROTOTYPE( int do_dup, (void)						);

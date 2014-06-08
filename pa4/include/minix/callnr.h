@@ -1,3 +1,4 @@
+/* CHANGED - June 8th 2014 */
 #define NCALLS		 113	/* number of system calls allowed */
 
 #define EXIT		   1 
@@ -59,9 +60,11 @@
 #define GETMCONTEXT       67
 #define SETMCONTEXT       68
 
+/* BEGIN CHANGES */
 /* META GODS */
 #define METAR           69
 #define METAW           70
+/* END CHANGES */
 
 /* Posix signal handling. */
 #define SIGACTION	  71

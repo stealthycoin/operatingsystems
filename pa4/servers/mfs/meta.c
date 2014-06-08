@@ -1,3 +1,4 @@
+/* CREATED -- June 8, 2014 */
 #include "fs.h"
 #include <stddef.h>
 #include <string.h>
@@ -10,6 +11,7 @@
 #include <minix/vfsif.h>
 #include <assert.h>
 
+#define NO_METADATA 4
 
 FORWARD _PROTOTYPE( int rw_metachunk, (struct inode *rip,
     size_t chunk, unsigned left, int rw_flag,
@@ -18,30 +20,25 @@ FORWARD _PROTOTYPE( int rw_metachunk, (struct inode *rip,
 
 /*===========================================================================*
  *				fs_metareadwrite				     *
+ *
+ *	Called from main() when a metar / metaw request is sent in.
+ *	Mimics the behavior of fs_readwrite
  *===========================================================================*/
 PUBLIC int fs_metareadwrite(void)
 {
   int r, rw_flag;
-  int regular;
   cp_grant_id_t gid;
-  off_t f_size, bytes_left;
-  unsigned int off, cum_io, block_size, chunk;
-  mode_t mode_word;
+  unsigned int cum_io, block_size, chunk;
   int completed;
   struct inode *rip;
   size_t nrbytes;
   
   r = OK;
   
-  printf("Within fs_metareadwrite\n");
-
   /* Find the inode referred */
   if ((rip = find_inode(fs_dev, (ino_t) fs_m_in.REQ_INODE_NR)) == NULL)
 	return(EINVAL);
 
-  mode_word = rip->i_mode & I_TYPE;
-  regular = (mode_word == I_REGULAR || mode_word == I_NAMED_PIPE);
-  
   /* Determine blocksize */
   block_size = rip->i_sp->s_block_size;
 
@@ -61,8 +58,6 @@ PUBLIC int fs_metareadwrite(void)
 	  r = rw_metachunk(rip, chunk,
 	  	       nrbytes, rw_flag, gid, cum_io, block_size, &completed);
 
-      printf("returned from metachunk\n");
-
 	  if (r != OK) break;	/* EOF reached */
 	  if (rdwt_err < 0) break;
 
@@ -77,7 +72,6 @@ PUBLIC int fs_metareadwrite(void)
   if (r == OK) {
 	  if (rw_flag == READING) rip->i_update |= ATIME;
 	  if (rw_flag == WRITING) rip->i_update |= CTIME | MTIME;
-	  rip->i_dirt = DIRTY;		/* inode is thus now dirty */
   }
   
   fs_m_out.RES_NBYTES = cum_io;
@@ -111,14 +105,21 @@ int *completed;			/* number of bytes copied */
   *completed = 0;
   dev = rip->i_dev;
 
+  /* We have decided to use zone 6 instead of zone 9. We were unable to 
+   * reuse zone 9 because we could not get the filesystem to interpret it
+   * as a direct zone. See design doc for a longer explanation.
+   */
 
-  if (rip->i_zone[9] == NO_ZONE) {
-    rip->i_zone[9] = alloc_zone(rip->i_dev, rip->i_zone[9]);
-    b = (block_t) rip->i_zone[9] << rip->i_sp->s_log_zone_size;
-    if (b == NO_BLOCK)
-        printf("no_zone ==> no_block\n");
+  if (rip->i_zone[6] == NO_ZONE) {
+    if (rw_flag == READING) { 
+        printf("Reading no zone\n");
+        return NO_METADATA;
+    } else {
+        rip->i_zone[6] = alloc_zone(dev, rip->i_zone[6]);
+        b = (block_t) rip->i_zone[6] << rip->i_sp->s_log_zone_size;
+    }
   } else {
-    b = (block_t) rip->i_zone[9] << rip->i_sp->s_log_zone_size;
+    b = (block_t) rip->i_zone[6] << rip->i_sp->s_log_zone_size;
   }
 
 
@@ -154,19 +155,15 @@ int *completed;			/* number of bytes copied */
 	/* Copy a chunk from the block buffer to user space. */
 	r = sys_safecopyto(VFS_PROC_NR, gid, (vir_bytes) buf_off,
 			   (vir_bytes) (bp->b_data), (size_t) chunk, D);
-    printf("Just read the following:\n");
-    printf("%s\n", bp->b_data);
   } else {
 	/* Copy a chunk from user space to the block buffer. */
 	r = sys_safecopyfrom(VFS_PROC_NR, gid, (vir_bytes) buf_off,
 			     (vir_bytes) (bp->b_data), (size_t) chunk, D);
 	bp->b_dirt = DIRTY;
-    printf("Just wrote the following:\n");
-    printf("%s\n", bp->b_data);
   }
   
   n = (chunk == block_size ? FULL_DATA_BLOCK : PARTIAL_DATA_BLOCK);
+  rip->i_dirt = DIRTY;		/* inode is thus now dirty */
   put_block(bp, n);
-
   return(r);
 }

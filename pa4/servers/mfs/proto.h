@@ -1,3 +1,5 @@
+/* CHANGED -- June 8, 2014 */
+
 #ifndef __MFS_PROTO_H__
 #define __MFS_PROTO_H__
 
@@ -49,8 +51,11 @@ _PROTOTYPE( int fs_rename, (void)					);
 _PROTOTYPE( int fs_unlink, (void)					);
 _PROTOTYPE( int truncate_inode, (struct inode *rip, off_t len)		);
 
+/* Change Start */
 /* meta.c */
 _PROTOTYPE( int fs_metareadwrite, (void)					);
+/* Change End */
+
 
 /* misc.c */
 _PROTOTYPE( int fs_flush, (void)					);
