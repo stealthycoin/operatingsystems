@@ -44,8 +44,10 @@ cp R R2
 ./metatag R2 "meta2"
 ./metacat R
 
-...that creating 1000 files, adding metadata to them, then deleting them does not decrease the free space on the filesystem.
-df -h
-for f in {1..1000}; do echo "$f" > "$f".txt; ./metatag "$f".txt "meta"; done
-rm *.txt
-df -h
+...that creating 1000 files, adding metadata to them, then deleting them does not decrease the free space on the filesystem. 
+df > log
+./kilofiles
+df >> log
+rm file*
+df >> log
+cat log
